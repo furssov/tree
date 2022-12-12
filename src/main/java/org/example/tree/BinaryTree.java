@@ -1,55 +1,84 @@
 package org.example.tree;
 
+import java.util.Stack;
+
 public class BinaryTree {
 
     private Node root;
 
-    public void inOrder(Node localRoot)
+    //симетричный обход
+    private void inOrder(Node localRoot)
     {
         if (localRoot != null)
         {
             inOrder(localRoot.leftChild);
-            System.out.println(localRoot.key);
+            System.out.println(localRoot.key + " ");
             inOrder(localRoot.rightChild);
+        }
+    }
+    //
+    private void preOrder(Node localRoot)
+    {
+        if(localRoot != null)
+        {
+            System.out.print(localRoot.key + " ");
+            preOrder(localRoot.leftChild);
+            preOrder(localRoot.rightChild);
+        }
+    }
+
+    private void postOrder(Node localRoot)
+    {
+        if(localRoot != null)
+        {
+            postOrder(localRoot.leftChild);
+            postOrder(localRoot.rightChild);
+            System.out.print(localRoot.key + " ");
         }
     }
 
     public void insert(int key)
     {
         Node newNode = new Node(key);
-        if (root == null)
-        {
+
+        if(root==null)
+// Корневой узел не существует
             root = newNode;
-        }
         else
+// Корневой узел занят
         {
             Node current = root;
+// Начать с корневого узла
             Node parent;
-
-            while (true)
+            while(true)
+// (внутренний выход из цикла)
             {
                 parent = current;
-                if (key < current.key)
+                if(key < current.key) // Двигаться налево?
                 {
                     current = current.leftChild;
-                    if (current == null)
+                    if(current == null) // Если достигнут конец цепочки,
                     {
+// вставить слева
                         parent.leftChild = newNode;
                         return;
                     }
-                    else
+                }
+                else
+// Или направо?
+                {
+                    current = current.rightChild;
+                    if(current == null) // Если достигнут конец цепочки,
                     {
-                        current = current.rightChild;
-                        if (current == null)
-                        {
-                            parent.rightChild = newNode;
-                            return;
-                        }
+// вставить справа
+                        parent.rightChild = newNode;
+                        return;
                     }
                 }
             }
         }
     }
+
 
     public boolean delete(int key)
     {
@@ -104,6 +133,67 @@ public class BinaryTree {
 
     }
 
+    public void traverse(int traverseType)
+    {
+        switch(traverseType)
+        {
+            case 1: System.out.print("\nPreorder traversal: ");
+                preOrder(root);
+                break;
+            case 2: System.out.print("\nInorder traversal: ");
+                inOrder(root);
+                break;
+            case 3: System.out.print("\nPostorder traversal: ");
+                postOrder(root);
+                break;
+        }
+        System.out.println();
+    }
+
+    public void displayTree()
+    {
+        Stack globalStack = new Stack();
+        globalStack.push(root);
+        int nBlanks = 32;
+        boolean isRowEmpty = false;
+        System.out.println(
+                "......................................................");
+        while(isRowEmpty==false)
+        {
+            Stack localStack = new Stack();
+            isRowEmpty = true;
+    for(int j=0; j<nBlanks; j++)
+            System.out.print(' ');
+while(globalStack.isEmpty()==false)
+    {
+        Node temp = (Node)globalStack.pop();
+        if(temp != null)
+        {
+            System.out.print(temp.key);
+            localStack.push(temp.leftChild);
+            localStack.push(temp.rightChild);
+            if(temp.leftChild != null ||
+                    temp.rightChild != null)
+                isRowEmpty = false;
+        }
+        else
+        {
+            System.out.print("--");
+            localStack.push(null);
+            localStack.push(null);
+        }
+        for(int j=0; j<nBlanks*2-2; j++)
+            System.out.print(' ');
+    }
+System.out.println();
+    nBlanks /= 2;
+while(localStack.isEmpty()==false)
+        globalStack.push( localStack.pop() );
+}
+System.out.println(
+        "......................................................");
+        }
+
     private Node getSuccessor(Node delNode)
     {
         Node successorParent = delNode;
@@ -129,7 +219,7 @@ public class BinaryTree {
     }
 
 
-    private Node find(int key)
+    public Node find(int key)
     {
         Node current = root;
         while (current.key != key)
@@ -147,15 +237,5 @@ public class BinaryTree {
         return current;
     }
 
-    class Node
-    {
-         private int key;
-         private Node leftChild;
-         private Node rightChild;
 
-         public Node(int key)
-         {
-             this.key = key;
-         }
-    }
 }
